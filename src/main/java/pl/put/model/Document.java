@@ -21,6 +21,10 @@ public class Document implements Stemmable {
     public Document() {
     }
 
+    public Document(String text) {
+        this(null, text);
+    }
+
     public Document(String title, String text) {
         this.title = title;
         this.text = text;

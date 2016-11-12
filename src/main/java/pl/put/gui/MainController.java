@@ -114,7 +114,7 @@ public class MainController {
 
     private void createSearchEngine() {
         searchEngine = new SearchEngine(stemmer, tfidf);
-        searchEngine.setSimilarity(new CosinusSimilarity());
+        searchEngine.setSimilarity(new CosineSimilarity());
     }
 
     @FXML
@@ -156,7 +156,7 @@ public class MainController {
             }
 
             if (newValue == cosinusRadioButton) {
-                searchEngine.setSimilarity(new CosinusSimilarity());
+                searchEngine.setSimilarity(new CosineSimilarity());
             }
             if (newValue == jaccardRadioButton) {
                 searchEngine.setSimilarity(new JaccardSimilarity());

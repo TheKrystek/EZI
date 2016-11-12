@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Author: Krystian Świdurski
  */
-public class CosinusSimilarity implements SimilarityModel {
+public class CosineSimilarity implements SimilarityModel {
     private TFIDF TFIDF;
     private Map<Keyword, Double> queryTFIDF;
 
