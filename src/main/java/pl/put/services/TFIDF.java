@@ -61,10 +61,7 @@ public class TFIDF {
     }
 
     public double getInverseDocumentFrequency(Keyword keyword) {
-        if (IDF.containsKey(keyword)) {
-            return IDF.get(keyword);
-        }
-        return 0;
+        return IDF.getOrDefault(keyword, 0.0);
     }
 
     //<editor-fold desc="Queries">
@@ -110,6 +107,7 @@ public class TFIDF {
     //<editor-fold desc="TF - Term frequency">
     private void calcTermFrequency(Document document, Keywords keywords) {
         double sumOfTerms = calculateNumberOfKeywordsInDocument(document);
+//        double sumOfTerms = calculateTheMostCommonKeywordInDocument(document);
         for (Keyword keyword : keywords) {
             calcTermFrequency(document, keyword, sumOfTerms);
         }
@@ -123,6 +121,17 @@ public class TFIDF {
         }
         TF.put(keyword, document, tf);
         return tf;
+    }
+
+    private double calculateTheMostCommonKeywordInDocument(Document document) {
+        Map<Keyword, Double> map = documentTermCount.get(document);
+        double max = 0;
+        for (Map.Entry<Keyword, Double> entry : map.entrySet()) {
+            if (entry.getValue() > max) {
+                max = entry.getValue();
+            }
+        }
+        return max;
     }
 
     private double calculateNumberOfKeywordsInDocument(Document document) {

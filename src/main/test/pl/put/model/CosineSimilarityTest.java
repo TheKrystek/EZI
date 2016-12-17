@@ -61,9 +61,4 @@ public class CosineSimilarityTest {
     }
 
 
-    @Test
-    public void calculate1() throws Exception {
-
-    }
-
 }
