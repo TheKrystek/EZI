@@ -1,26 +1,32 @@
 package pl.put.services;
 
+import lombok.Getter;
 import pl.put.model.Document;
 import pl.put.model.Documents;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Scanner;
 
 /**
- * Author: Krystian Świdurski
+ * Author: Rafał Sobkowiak
  */
-public class FileDocumentReader extends FileReader implements DocumentReader {
+public class FileClassifiedDocumentReader extends FileReader implements DocumentReader {
 
-    public FileDocumentReader(File file) {
+    public FileClassifiedDocumentReader(File file) {
         super(file);
     }
 
-    public FileDocumentReader(String file) {
+    public FileClassifiedDocumentReader(String file) {
         super(file);
     }
+
+    @Getter
+    HashSet<String> classNames;
 
     @Override
     public Documents read() throws Exception {
+        classNames  = new HashSet<String>();
         Documents documents = new Documents();
         checkIfFileExist();
         Scanner scanner = new Scanner(file);
@@ -35,7 +41,10 @@ public class FileDocumentReader extends FileReader implements DocumentReader {
                 builder = new StringBuilder();
                 document = new Document();
             } else {
-                if (document.getTitle() == null) {
+                if (document.getClassName() == null) {
+                    document.setClassName(line);
+                    classNames.add(line);
+                } else if (document.getTitle() == null) {
                     document.setTitle(line);
                 } else {
                     builder.append(line);

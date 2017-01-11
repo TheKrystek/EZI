@@ -35,12 +35,36 @@ public class CosineSimilarity implements SimilarityModel {
         return getScalarProduct(document) / vectorProduct;
     }
 
+    public double calculate(Document d, DocumentGroup g) {
+        double vectorProduct = getVectorProduct(d, g);
+        if (vectorProduct == 0) {
+            return 0;
+        }
+        return getScalarProduct(d, g) / vectorProduct;
+    }
 
     private double getScalarProduct(Document d1, Document d2) {
         double product = 0;
         for (Keyword keyword : TFIDF.getKeywords()) {
             product += TFIDF.getTFIDF(keyword, d1) * TFIDF.getTFIDF(keyword, d2);
         }
+        return product;
+    }
+
+    private double getScalarProduct(Document d1, DocumentGroup g) {
+        double product = 0;
+        Integer documentCount = g.getDocuments().size();
+            for (Keyword keyword : TFIDF.getKeywords()) {
+
+                double gTFIDF = 0.0;
+                //Zsumuj TFIDF słowa kluczowego dla wszystkich dokumnetów w grupie
+                for(Document document : g.getDocuments()) {
+                    gTFIDF+=TFIDF.getTFIDF(keyword, document);
+                }
+                //Oblicz średnią
+                gTFIDF/=documentCount;
+                product += TFIDF.getTFIDF(keyword, d1) *  gTFIDF;
+            }
         return product;
     }
 
@@ -57,7 +81,18 @@ public class CosineSimilarity implements SimilarityModel {
         return getVectorLength(d1) * getVectorLength(d2);
     }
 
-    private double getVectorProduct(Document document) {
+    private double getVectorProduct(Document d, DocumentGroup g) {
+        Double vectorLength = g.getVectorLength();
+
+        if(vectorLength == null){
+            g.setVectorLength(getVectorLength(g));
+            vectorLength = g.getVectorLength();
+        }
+
+        return getVectorLength(d) * vectorLength;
+    }
+
+    public double getVectorProduct(Document document) {
         return getVectorLength(document) * getQueryVectorLength();
     }
 
@@ -65,6 +100,23 @@ public class CosineSimilarity implements SimilarityModel {
         double sumOfSquares = 0;
         for (Keyword keyword : TFIDF.getKeywords()) {
             double value = TFIDF.getTFIDF(keyword, document);
+            sumOfSquares += (value * value);
+        }
+        return Math.sqrt(sumOfSquares);
+    }
+
+    private double getVectorLength(DocumentGroup documentGroup) {
+        double sumOfSquares = 0;
+        Integer documentCount = documentGroup.getDocuments().size();
+
+        for (Keyword keyword : TFIDF.getKeywords()) {
+            double value = 0;
+            //Zsumuj TFIDF słowa kluczowego dla wszystkich dokumnetów w grupie
+            for(Document document : documentGroup.getDocuments()) {
+                value+= TFIDF.getTFIDF(keyword, document);
+            }
+            //Oblicz średnią
+            value /= documentCount;
             sumOfSquares += (value * value);
         }
         return Math.sqrt(sumOfSquares);

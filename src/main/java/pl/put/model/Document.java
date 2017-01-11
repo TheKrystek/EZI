@@ -14,7 +14,12 @@ public class Document implements Stemmable {
     @Getter
     @Setter
     private String text;
-
+    @Getter
+    @Setter
+    private String className;
+    @Getter
+    @Setter
+    private Integer groupNumber;
     @Getter
     private String stemmedTitle, stemmedText;
 
@@ -32,7 +37,15 @@ public class Document implements Stemmable {
 
     @Override
     public String toString() {
-        return String.format("TITLE: %s, TEXT: %s", title, text);
+        StringBuilder sb = new StringBuilder();
+        if(groupNumber != null){
+            sb.append(String.format("GROUPNUMBER: %s ",groupNumber.toString()));
+        }
+        if(className != null){
+            sb.append(String.format("CLASS: %s ",className));
+        }
+        sb.append(String.format("TITLE: %s, TEXT: %s", title, text));
+        return sb.toString();
     }
 
     @Override
