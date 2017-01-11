@@ -26,7 +26,7 @@ public class FileClassifiedDocumentReader extends FileReader implements Document
 
     @Override
     public Documents read() throws Exception {
-        classNames  = new HashSet<String>();
+        classNames  = new HashSet<>();
         Documents documents = new Documents();
         checkIfFileExist();
         Scanner scanner = new Scanner(file);

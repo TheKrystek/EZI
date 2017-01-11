@@ -7,12 +7,16 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import pl.put.Main;
 import pl.put.model.*;
 import pl.put.services.*;
+import pl.put.utils.ColorGenerator;
 
 import java.io.File;
 import java.net.URL;
@@ -85,6 +89,7 @@ public class MainController {
     private SearchEngine searchEngine;
     private SearchResults searchResults;
     private QueryExpansion queryExpansion = new QueryExpansion();
+    private ColorGenerator colorGenerator = new ColorGenerator();
 
     @FXML
     void loadDocuments() {
@@ -277,14 +282,8 @@ public class MainController {
         TFIDFButton.setDisable(true);
         KMeansButton.setDisable(true);
         documentsListView.getItems().addListener(getListener());
-        documentsListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Document document = documentsListView.getSelectionModel().getSelectedItem();
-                if (document != null) {
-                    DocumentDialog.show(document);
-                }
-            }
-        });
+        documentsListView.setOnMouseClicked(getMouseEventEventHandler(documentsListView));
+
         keywordsListView.getItems().addListener(getListener());
         keywordsListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -296,15 +295,36 @@ public class MainController {
         });
 
         groupedDocumentsListView.getItems().addListener(getListener());
-        groupedDocumentsListView.setOnMouseClicked(event -> {
+        groupedDocumentsListView.setOnMouseClicked(getMouseEventEventHandler(groupedDocumentsListView));
+        groupedDocumentsListView.setCellFactory(new Callback<ListView<Document>, ListCell<Document>>() {
+            @Override
+            public ListCell<Document> call(ListView<Document> param) {
+                final ListCell<Document> cell = new ListCell<Document>(){
+                    @Override
+                    protected void updateItem(Document item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (!empty){
+                            setText(item.toString());
+                            Integer groupNumber = item.getGroupNumber();
+                            setBackground(colorGenerator.getBackground(groupNumber == null ? 100 : groupNumber));
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+    }
+
+    private EventHandler<MouseEvent> getMouseEventEventHandler(ListView<Document> documentListView) {
+        return event -> {
             if (event.getClickCount() == 2) {
-                Document document = groupedDocumentsListView.getSelectionModel().getSelectedItem();
+                Document document = documentListView.getSelectionModel().getSelectedItem();
                 if (document != null) {
                     DocumentDialog.show(document);
                 }
             }
-        });
-
+        };
     }
 
     private ListChangeListener<Object> getListener() {
