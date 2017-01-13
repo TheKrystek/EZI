@@ -66,6 +66,7 @@
                                      <TextField fx:id="documentsTextField" promptText="Documents" />
                                      <TextField fx:id="classifiedDocumentsTextField" promptText="Documents" GridPane.rowIndex="1" /><Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loadClassifiedDocuments" text="Load documents fo k-means" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                      <TextField fx:id="keywordsTextField" promptText="Keywords" GridPane.rowIndex="2" />
+                                     <TextField fx:id="queryExpansionCountTextField" promptText="Query expansion count" GridPane.rowIndex="3" />
                                      <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loadKeywords" text="Load keywords" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                      <Button fx:id="TFIDFButton" maxWidth="1.7976931348623157E308" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#runTFIDF" text="Run TF-IDF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                  </children>
@@ -90,8 +91,9 @@
                       </columnConstraints>
                       <rowConstraints>
                           <RowConstraints minHeight="50.0" prefHeight="50.0" valignment="CENTER" />
-                          <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                          <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                           <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                       </rowConstraints>
@@ -105,7 +107,7 @@
                                   <Insets top="20.0" />
                               </padding>
                           </HBox>
-                          <TableView fx:id="resultsTableView" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
+                          <TableView fx:id="resultsTableView" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="4">
                               <columns>
                                   <TableColumn fx:id="titleColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="500.0" text="TITLE" />
                                   <TableColumn fx:id="similarityColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="SIM" />
@@ -114,7 +116,7 @@
                                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                               </columnResizePolicy>
                           </TableView>
-                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="1">
+                          <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="1">
                               <children>
                                   <Label text="Similarity: " />
                                   <RadioButton fx:id="cosinusRadioButton" mnemonicParsing="false" selected="true" text="Cosinus">
@@ -125,12 +127,22 @@
                                   <RadioButton fx:id="jaccardRadioButton" mnemonicParsing="false" text="Jaccard" toggleGroup="$similarityToggleGroup" />
                               </children>
                           </HBox>
-                          <HBox fx:id="queryExpansionBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="2">
+                          <HBox alignment="CENTER" prefHeight="70.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="2">
                               <children>
-                                  <!--  <Label text="Query expansion: "/><Hyperlink>dsdds</Hyperlink><Hyperlink>sasas</Hyperlink> -->
+                                  <Label text="Query expansion: " />
+                                  <RadioButton fx:id="queryExpansionOnRadioButton" mnemonicParsing="false" selected="true" text="On">
+                                      <toggleGroup>
+                                          <ToggleGroup fx:id="queryExpansionToggleGroup" />
+                                      </toggleGroup>
+                                  </RadioButton>
+                                  <RadioButton fx:id="queryExpansionOffRadioButton" mnemonicParsing="false" text="Off" toggleGroup="$queryExpansionToggleGroup" />
                               </children>
                           </HBox>
-                          <GridPane GridPane.rowIndex="4">
+                          <HBox fx:id="queryExpansionBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="3">
+                              <children>
+                              </children>
+                          </HBox>
+                          <GridPane GridPane.rowIndex="5">
                               <columnConstraints>
                                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />

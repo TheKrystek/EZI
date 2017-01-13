@@ -7,8 +7,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -51,6 +49,8 @@ public class MainController {
     @FXML
     private TextField keywordsTextField;
     @FXML
+    private TextField queryExpansionCountTextField;
+    @FXML
     private Button TFIDFButton;
     @FXML
     private Button KMeansButton;
@@ -66,6 +66,8 @@ public class MainController {
     private ToggleGroup similarityToggleGroup;
     @FXML
     private RadioButton jaccardRadioButton;
+    @FXML
+    private RadioButton queryExpansionOnRadioButton;
     @FXML
     private CheckBox allResultsCheckBox;
     @FXML
@@ -88,7 +90,7 @@ public class MainController {
     private TFIDF tfidf;
     private SearchEngine searchEngine;
     private SearchResults searchResults;
-    private QueryExpansion queryExpansion = new QueryExpansion();
+    private QueryExpansionService queryExpansionService;
     private ColorGenerator colorGenerator = new ColorGenerator();
 
     @FXML
@@ -111,7 +113,7 @@ public class MainController {
             documents = reader.read();
             stemmer.run(documents);
             documentsListView.getItems().setAll(documents);
-            classNames = ((FileClassifiedDocumentReader)reader).getClassNames();
+            classNames = ((FileClassifiedDocumentReader) reader).getClassNames();
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Couldn't read file: " + classifiedDocumentFile);
@@ -139,6 +141,7 @@ public class MainController {
         groupingTab.setDisable(false);
         searchTab.getTabPane().getSelectionModel().select(searchTab);
         createSearchEngine();
+        createQueryExpansion();
     }
 
     @FXML
@@ -152,14 +155,13 @@ public class MainController {
             } catch (NumberFormatException e) {
                 throw new Exception(e.getMessage());
             }
-            if(iterations == null){
+            if (iterations == null) {
                 throw new Exception("Invalid number of iterations.");
             }
-            if(k == null){
+            if (k == null) {
                 throw new Exception("Invalid value of k.");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Error");
@@ -174,20 +176,34 @@ public class MainController {
 
     @FXML
     void search() {
+        Integer queryExpansionCount;
+        try {
+            queryExpansionCount = Integer.parseInt(queryExpansionCountTextField.getText());
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error");
+            alert.setContentText("Invalid query expansion count.");
+            alert.show();
+            return;
+        }
+
         searchResults = searchEngine.search(new Query(queryTextField.getText()));
         showResults(searchResults);
-        showQueryExpansion(queryExpansion.expandQuery(new Query(queryTextField.getText())));
+        if (queryExpansionOnRadioButton.isSelected()) {
+            showQueryExpansion(queryExpansionService.expandQuery(searchResults,new Query(queryTextField.getText()),queryExpansionCount,0.3));
+        }
     }
 
     private void showResults(SearchResults result) {
+        queryExpansionBox.getChildren().clear();
         resultsTableView.getItems().setAll(result.getResults(allResultsCheckBox.isSelected()));
         numberOfResults.setText(String.format("Number of results: %s", resultsTableView.getItems().size()));
     }
 
-    private void showQueryExpansion(List<Query> queryExpansion) {
+    private void showQueryExpansion(List<QueryExpansion> queryExpansion) {
         queryExpansionBox.getChildren().clear();
-        queryExpansionBox.getChildren().add(new Label("Query expansion: "));
-        for(Query query : queryExpansion){
+        for (Query query : queryExpansion) {
             Hyperlink link = new Hyperlink(query.getText());
             link.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -201,12 +217,15 @@ public class MainController {
     }
 
 
-
-
-
     private void createSearchEngine() {
         searchEngine = new SearchEngine(stemmer, tfidf);
         searchEngine.setSimilarity(new CosineSimilarity());
+    }
+
+    private void createQueryExpansion(){
+        queryExpansionService = new QueryExpansionService();
+        queryExpansionService.setSimilarity(new CosineSimilarity());
+        queryExpansionService.setStemmer(stemmer);
     }
 
     @FXML
@@ -234,7 +253,7 @@ public class MainController {
         resultsTableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 SearchResult result = resultsTableView.getSelectionModel().getSelectedItem();
-                if (result!=null) {
+                if (result != null) {
                     DocumentDialog.show(result.getDocument());
                 }
             }
@@ -249,9 +268,11 @@ public class MainController {
 
             if (newValue == cosinusRadioButton) {
                 searchEngine.setSimilarity(new CosineSimilarity());
+                queryExpansionService.setSimilarity(new CosineSimilarity());
             }
             if (newValue == jaccardRadioButton) {
                 searchEngine.setSimilarity(new JaccardSimilarity());
+                queryExpansionService.setSimilarity(new JaccardSimilarity());
             }
             search();
         });
@@ -299,12 +320,12 @@ public class MainController {
         groupedDocumentsListView.setCellFactory(new Callback<ListView<Document>, ListCell<Document>>() {
             @Override
             public ListCell<Document> call(ListView<Document> param) {
-                final ListCell<Document> cell = new ListCell<Document>(){
+                final ListCell<Document> cell = new ListCell<Document>() {
                     @Override
                     protected void updateItem(Document item, boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (!empty){
+                        if (!empty) {
                             setText(item.toString());
                             Integer groupNumber = item.getGroupNumber();
                             setBackground(colorGenerator.getBackground(groupNumber == null ? 100 : groupNumber));

@@ -13,6 +13,8 @@ public class Main extends Application {
     public final static String DEFAULT_K_MEANS_DOCUMENTS_PATH = "documents-2.txt";
     public final static String DEFAULT_K_MEANS_KEYWORDS_PATH = "keywords-2.txt";
 
+    public final static String DEFAULT_STOPWORDS_PATH = "stopwords.txt";
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("gui/main.fxml"));
